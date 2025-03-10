@@ -2,10 +2,16 @@
   <router-view />
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script setup>
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from 'stores/userStore';
 
-export default defineComponent({
-  name: 'App'
-})
+const router = useRouter();
+const userStore = useUserStore();
+
+onMounted(() => {
+  // Redirect to the loading page on app mount
+  router.push('/loading');
+});
 </script>

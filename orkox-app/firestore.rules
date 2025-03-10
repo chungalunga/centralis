@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if a user is an admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // === INCIDENTS COLLECTION ===
+    match /incidents/{incidentId} {
+      // Only allow read access to specific users listed in the authorizedReaders array OR to admins
+      allow read: if request.auth != null
+                    && (request.resource.data.authorizedReaders.hasAny([request.auth.uid]) || isAdmin());
+
+      // Allow create access only to authenticated users. The creator's userId is written to the document.
+      allow create: if request.auth != null
+                     && request.resource.data.createdBy == request.auth.uid;
+
+      // Allow update access to the incident creator OR to admins.
+      allow update: if (request.auth != null
+                     && (request.resource.data.createdBy == request.auth.uid || isAdmin()));
+
+      // Allow delete access only to admins
+      allow delete: if request.auth != null && isAdmin();
+
+      // === ACTIVITIES SUBCOLLECTION ===
+      match /activities/{activityId} {
+        // Allow read access to any authenticated user who can read the incident
+        allow read: if request.auth != null
+                      && get(/databases/$(database)/documents/incidents/$(incidentId)).data.authorizedReaders.hasAny([request.auth.uid]) ;
+
+        // Allow create access only to authenticated users who can update incident. The creator's userId is written to the document.
+        allow create: if request.auth != null
+                       && get(/databases/$(database)/documents/incidents/$(incidentId)).data.createdBy == request.auth.uid
+                       && request.resource.data.inCharge != null; // You should require the inCharge field to be present
+
+        // Allow update access to activity owner (inCharge) or incident creator or admin.
+        allow update: if request.auth != null && (request.resource.data.inCharge == request.auth.uid
+                       || get(/databases/$(database)/documents/incidents/$(incidentId)).data.createdBy == request.auth.uid
+                       || isAdmin());
+
+        // Allow delete access only to admins
+        allow delete: if request.auth != null && isAdmin();
+      }
+    }
+
+    // === USERS COLLECTION (for storing roles) ===
+    match /users/{userId} {
+      // Allow read access to the user's own document OR to admins
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      // Allow create access only if the user ID matches the authenticated user ID.
+      //  This prevents users from creating documents for other users.  Admins can create other user profiles.
+      allow create: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      // Allow update access only to the user's own document OR to admins
+      allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+
+      // No one can delete a user doc, not even admin, so that it has to be a code function.
+      allow delete: if false;
+    }
+  }
+}
