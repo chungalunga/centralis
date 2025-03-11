@@ -1,5 +1,38 @@
 <template>
   <q-page class="bg-grey-1">
+
+    <q-dialog v-model="dialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">{{ isEditing ? 'Edit Task' : 'Add Task' }}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-form @submit.prevent="onSubmit" class="q-gutter-md">
+            <q-input v-model="task.title" label="Task Title" :rules="[requiredRule]"
+              placeholder="e.g., Investigate Network Logs" />
+
+            <q-input v-model="task.description" label="Task Description (Optional)" type="textarea"
+              placeholder="Detailed description of the task" />
+
+            <q-select v-model="task.assignedTo" :options="assigneeOptions" label="Assigned To"
+              :rules="[requiredRule]" />
+
+            <q-select v-model="task.status" :options="statusOptions" label="Status" :rules="[requiredRule]" />
+
+            <q-datetime v-model="task.dueDate" label="Due Date" mask="YYYY-MM-DD HH:mm" :rules="[requiredRule]" />
+
+            <q-select v-model="task.priority" :options="priorityOptions" label="Priority" :rules="[requiredRule]" />
+
+            <div>
+              <q-btn label="Cancel" color="secondary" @click="onCancel" />
+              <q-btn label="Save Task" type="submit" color="primary" :loading="loading" :disable="loading" />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
     <q-toolbar style="max-width: 900px;" class="q-mx-auto">
       <div class="text-h4">Incidents</div>
       <q-space />

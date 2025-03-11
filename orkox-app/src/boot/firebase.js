@@ -5,13 +5,13 @@ import { useUserStore } from 'stores/userStore';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBO_VDlBtLUUwVT9jx73FTesIgm_ND3-Nk",
-  authDomain: "organizely-ae827.firebaseapp.com",
-  projectId: "organizely-ae827",
-  storageBucket: "organizely-ae827.firebasestorage.app",
-  messagingSenderId: "540471783903",
-  appId: "1:540471783903:web:06676668c34f05ad09546a",
-  measurementId: "G-ZG61LQ7ZDX"
+  apiKey: "AIzaSyBasGiF7L-ubWX-zOuK9TCBkkKq6-JcAGs",
+  authDomain: "centralis-40442.firebaseapp.com",
+  projectId: "centralis-40442",
+  storageBucket: "centralis-40442.firebasestorage.app",
+  messagingSenderId: "762039315573",
+  appId: "1:762039315573:web:92bde9667de8f70beb5c3c",
+  measurementId: "G-WG7BBQ3S7B"
 };
 
 let firebaseApp;
@@ -25,7 +25,6 @@ try {
 
   auth = getAuth(firebaseApp);
   db = getFirestore(firebaseApp);
-
 } catch (error) {
   console.error("Error initializing Firebase:", error);
 }
@@ -57,7 +56,7 @@ export default ({ app, router, store }) => {
         // If the user is valid
         if (user) {
           userStore.setUser(user);
-          console.log("User logged in:", user.email);
+          console.log("User logged in:", user);
         } else {
           userStore.setUser(null);
           console.log("User logged out");

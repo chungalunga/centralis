@@ -13,12 +13,14 @@ export const useIncidentStore = defineStore('incident', {
     async fetchIncidents() {
       this.loading = true;
       try {
+        console.log("Fetching incidents")
         const querySnapshot = await getDocs(collection(db, "incidents"));
         this.incidents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       } catch (error) {
         console.error("Error fetching incidents:", error);
         this.error = error.message;
       } finally {
+        console.log("Fetched incidents")
         this.loading = false;
       }
     },
